@@ -1,0 +1,6 @@
+name,v_nom,control,generator
+LV bus,0.4,PQ,
+Prosumer 1,0.4,PQ,
+Prosumer 2,0.4,PQ,
+MV bus,10.0,PQ,
+Generator,10.0,Slack,Power plant

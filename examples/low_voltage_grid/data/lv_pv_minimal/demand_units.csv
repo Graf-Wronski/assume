@@ -1,0 +1,3 @@
+Load,bus,carrier,type,p_set,q_set,sign,active
+P1 Load,Prosumer 1,,,0.0,0.0,-1.0,True
+P2 Load,Prosumer 2,,,0.0,0.0,-1.0,True
