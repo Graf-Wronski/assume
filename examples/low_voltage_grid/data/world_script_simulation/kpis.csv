@@ -1,4 +1,4 @@
 variable,ident,value,simulation
-avg_price,EOM,0.27976,world_script_simulation
-total_cost,EOM,1.0575,world_script_simulation
+avg_price,EOM,0.46627,world_script_simulation
+total_cost,EOM,1.7625,world_script_simulation
 total_volume,EOM,0.705,world_script_simulation
