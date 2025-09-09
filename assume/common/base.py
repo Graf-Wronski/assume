@@ -434,7 +434,10 @@ class SupportsMinMax(BaseUnit):
         arr = (self.outputs["energy"].loc[begin:end] > 0)[::-1]
 
         # Determine initial state (off if the first period shows zero energy output)
-        is_off = not arr[0]
+        if len(arr) > 0:
+            is_off = not arr[0]
+        else:
+            is_off = False
         run = 0
 
         # Count consecutive periods with the same status, break on change
@@ -783,7 +786,7 @@ class LearningStrategy(BaseStrategy):
         obs_dim: int,
         act_dim: int,
         unique_obs_dim: int = 0,
-        num_timeseries_obs_dim: int = 2,
+        num_timeseries_obs_dim: int = 3,
         *args,
         **kwargs,
     ):

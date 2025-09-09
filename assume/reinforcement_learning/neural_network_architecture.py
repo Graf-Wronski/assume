@@ -130,6 +130,10 @@ class MLPActor(Actor):
         # Initialize weights
         self._init_weights()
 
+        # call forward pass with high obs value array to get max value of output layer
+        self.max_output = self.forward(th.ones(obs_dim, dtype=float_type) * 1000)
+        self.min_output = self.forward(th.ones(obs_dim, dtype=float_type) * -1000)
+
     def _init_weights(self):
         """Apply Xavier initialization to all layers."""
 
@@ -168,7 +172,7 @@ class LSTMActor(Actor):
         act_dim: int,
         float_type,
         unique_obs_dim: int = 0,
-        num_timeseries_obs_dim: int = 2,
+        num_timeseries_obs_dim: int = 3,
         *args,
         **kwargs,
     ):
@@ -192,6 +196,10 @@ class LSTMActor(Actor):
         # input size defined by forecast horizon and concatenated with capacity and marginal cost values
         self.FC1 = nn.Linear(self.timeseries_len * 16 + 2, 128, dtype=float_type)
         self.FC2 = nn.Linear(128, act_dim, dtype=float_type)
+
+        # call forward pass with high obs value array to get max value of output layer
+        self.max_output = self.forward(th.ones(obs_dim, dtype=float_type) * 1000)
+        self.min_output = self.forward(th.ones(obs_dim, dtype=float_type) * -1000)
 
     def forward(self, obs):
         if obs.dim() not in (1, 2):
@@ -217,7 +225,7 @@ class LSTMActor(Actor):
         outputs = []
 
         for time_step in x1.split(1, dim=2):
-            time_step = time_step.reshape(-1, 2)
+            time_step = time_step.reshape(-1, self.num_timeseries_obs_dim)
             h_t, c_t = self.LSTM1(time_step, (h_t, c_t))
             h_t2, c_t2 = self.LSTM2(h_t, (h_t2, c_t2))
             outputs += [h_t2]
