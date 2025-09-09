@@ -80,8 +80,18 @@ def check_congestion(n: pypsa.Network, data_root: Path):
         values="accepted_volume")
 
     p_set.index = pd.DatetimeIndex(p_set.index)
-    # ToDo Debug the following line.
-    n.loads_t["p_set"] = p_set.loc[n.snapshots, n.loads_t["p_set"].columns]
+    # ToDo: The following code is a hot fix due to the fact that assume forces
+    #  demand units to be named demand unit.
+
+    def remove_prefix(col_name: str) -> str:
+        if col_name.startswith("demand_unit_"):
+            return col_name[len("demand_unit_"):]
+        else:
+            return col_name
+
+    p_set.columns = [remove_prefix(c) for c in p_set.columns]
+    n.set_snapshots(p_set.index)
+    n.loads_t["p_set"] = p_set
     n.lpf()
 
     line_loading = n.lines_t.p0.abs() / n.lines.s_nom
@@ -90,4 +100,5 @@ def check_congestion(n: pypsa.Network, data_root: Path):
     if line_loading.max().max() > 1:
         print("Congestion detected")
     else:
+        print(line_loading.max())
         print("No Congestion detected")

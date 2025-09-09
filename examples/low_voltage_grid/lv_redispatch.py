@@ -91,7 +91,7 @@ class CongestionManagementAsRedispatch:
         eom_product = MarketProduct(
             duration=relativedelta(hours=1),
             count=24,
-            first_delivery=relativedelta(hours=3))
+            first_delivery=relativedelta(hours=24))
 
         eom_market = MarketConfig(
             market_id="EOM",
