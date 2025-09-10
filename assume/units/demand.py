@@ -64,7 +64,7 @@ class Demand(SupportsMinMax):
         self.ramp_down = max(abs(self.min_power), abs(self.max_power))
         self.ramp_up = self.ramp_down
 
-        self.volume = -abs(self.forecaster[self.id])  # demand is negative
+        self.volume = -abs(self.forecaster.demand)  # demand is negative
         self.price = FastSeries(index=self.index, value=price)
 
         # Elastic demand parameters
