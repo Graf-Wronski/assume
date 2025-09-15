@@ -1,3 +1,3 @@
-,technology,unit_operator,node,max_power,min_power,simulation
-demand_unit_0,demand,demand_operator_0,node0,0,-1000,world_script_simulation
-demand_unit_1,demand,demand_operator_1,node0,0,-1000,world_script_simulation
+,max_power,min_power,node,simulation,technology,unit_operator
+demand_unit_0,0,-1000,node0,world_script_simulation,demand,demand_operator_0
+demand_unit_1,0,-1000,node0,world_script_simulation,demand,demand_operator_1
