@@ -30,6 +30,7 @@ class BaseLearningStrategy(LearningStrategy):
         self.unit_id = kwargs["unit_id"]
 
         # defines bounds of actions space
+        self.min_bid_price = kwargs.get("min_bid_price", -100)
         self.max_bid_price = kwargs.get("max_bid_price", 100)
 
         # tells us whether we are training the agents or just executing per-learning strategies
@@ -1027,7 +1028,6 @@ class StorageRLStrategy(BaseLearningStrategy):
         -----
         Rewards are based on profit and include fixed costs for charging and discharging.
         """
-
         product_type = marketconfig.product_type
         reward = 0
 
@@ -1258,9 +1258,6 @@ class RenewableRLStrategy(RLStrategySingleBid):
         )
         market_clearing_price = orderbook[0]["accepted_price"]
 
-        # get potential maximum infeed according to availability
-        _, available_power = unit.calculate_min_max_power(start, end)
-
         duration = (end - start) / timedelta(hours=1)
 
         income = 0.0
@@ -1305,10 +1302,15 @@ class RenewableRLStrategy(RLStrategySingleBid):
         # This is not a price cap but rather a stabilizing factor to avoid reward spikes affecting learning stability.
         profit = min(profit, 0.5 * abs(profit))
 
+        # get potential maximum infeed according to availability from order volume
+        # Note: this will only work as the correct reference point when the volume is not defined by an action
+        # using a call unit_calculate_min_max_power here would be false since the dispatch of the order is already set, leading to no available power anymore
+        available_power = offered_volume_total
+
         # Opportunity cost: The income lost due to not operating at full capacity.
         opportunity_cost = (
             (market_clearing_price - marginal_cost)
-            * (available_power[0] - accepted_volume_total)
+            * (available_power - accepted_volume_total)
             * duration
         )
 
@@ -1326,7 +1328,10 @@ class RenewableRLStrategy(RLStrategySingleBid):
         # This guides the agent toward strategies that maximize accepted bids while minimizing lost opportunities.
 
         # scaling factor to normalize the reward to the range [-1,1]
-        scaling = 1 / (self.max_bid_price * unit.max_power)
+        if available_power == 0:
+            scaling = 0
+        else:
+            scaling = 1 / (self.max_bid_price * available_power)
 
         reward = scaling * (profit - regret_scale * opportunity_cost)
 
